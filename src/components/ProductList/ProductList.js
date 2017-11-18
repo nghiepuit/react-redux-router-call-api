@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
-import ProductItem from './../ProductItem/ProductItem';
 
 class ProductList extends Component {
+
     render() {
-        var { products } = this.props;
         return (
             <div className="panel panel-success">
                 <div className="panel-heading">
@@ -23,20 +22,12 @@ class ProductList extends Component {
                             </tr>
                         </thead>
                         <tbody>
-                            {this.showProducts(products)}
+                            {this.props.children}
                         </tbody>
                     </table>
                 </div>
             </div>
         );
-    }
-
-    showProducts(products) {
-        var result = null;
-        result = products.map((product, index) => {
-            return <ProductItem product={product} key={index} index={index} />
-        });
-        return result;
     }
 
 }

@@ -2,31 +2,22 @@ import React, { Component } from 'react';
 import './ProductListPage.css';
 import { Link } from 'react-router-dom';
 
-import callApi from './../../utils/apiCaller';
+import { connect } from 'react-redux';
 import ProductList from './../../components/ProductList/ProductList';
+import ProductItem from './../../components/ProductItem/ProductItem';
+import { actFetchProductsRequest, actDeleteProductRequest } from '../../actions/index';
 
 class ProductListPage extends Component {
 
-    constructor(props) {
-        super(props);
-        this.state = {
-            products: []
-        };
-    }
-
-    componentWillMount() {
+    componentDidMount() {
         // Gọi trước khi component đc render lần đầu tiên
-        callApi('/products', 'GET', null).then(res => {
-            if (res) {
-                this.setState({
-                    products: res.data
-                });
-            }
-        });
+        this.props.fetchAllProducts();
     }
 
     render() {
-        var { products } = this.state;
+
+        var { products } = this.props;
+
         return (
             <div className="container">
                 <div className="row">
@@ -34,12 +25,43 @@ class ProductListPage extends Component {
                         <Link to="/product/add" className="btn btn-primary mb-5">
                             <i className="glyphicon glyphicon-plus"></i> Thêm Sản Phẩm
                         </Link>
-                        <ProductList products={products} />
+                        <ProductList>
+                            {this.showProducts(products)}
+                        </ProductList>
                     </div>
                 </div>
             </div>
         );
     }
+
+    showProducts(products) {
+        var result = null;
+        var { onDeleteProduct } = this.props;
+        if (products.length > 0) {
+            result = products.map((product, index) => {
+                return <ProductItem product={product} key={index} index={index} onDeleteProduct={onDeleteProduct} />
+            });
+        }
+        return result;
+    }
+
 }
 
-export default ProductListPage;
+const mapStateToProps = state => {
+    return {
+        products: state.products
+    }
+}
+
+const mapDispatchToProps = (dispatch, props) => {
+    return {
+        fetchAllProducts: () => {
+            dispatch(actFetchProductsRequest());
+        },
+        onDeleteProduct: (id) => {
+            dispatch(actDeleteProductRequest(id));
+        }
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(ProductListPage);

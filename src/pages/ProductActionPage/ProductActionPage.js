@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import callApi from './../../utils/apiCaller';
 import { Link } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { actAddProductRequest, actUpdateProductRequest } from '../../actions/index';
+
 class ProductActionPage extends Component {
 
     constructor(props) {
@@ -17,7 +20,6 @@ class ProductActionPage extends Component {
     componentWillMount() {
         var { match } = this.props;
         if (match) { // update
-            console.log(match);
             var id = match.params.id;
             callApi(`/products/${id}`, 'GET', null).then(res => {
                 var data = res.data;
@@ -44,17 +46,19 @@ class ProductActionPage extends Component {
     onSubmit = (e) => {
         e.preventDefault();
         var { id, txtName, txtDescription, txtPrice, chkbStatus } = this.state;
-        var endpoint = id ? `/products/${id}` : '/products';
-        var method = id ? 'PUT' : 'POST';
-        callApi(endpoint, method, {
+        var product = {
+            id: id,
             name: txtName,
             description: txtDescription,
             price: txtPrice,
             status: chkbStatus
-        }).then(res => {
-            console.log(res);
-            this.props.history.goBack();
-        });
+        };
+        if (id) {
+            this.props.onUpdateProduct(product);
+        } else {
+            this.props.onAddProduct(product);
+        }
+        this.props.history.goBack();
     }
 
     render() {
@@ -83,7 +87,7 @@ class ProductActionPage extends Component {
                             </div>
                             <div className="checkbox">
                                 <label>
-                                    <input onChange={this.onChange} value={chkbStatus} type="checkbox" name="chkbStatus" />
+                                    <input checked={chkbStatus} onChange={this.onChange} value={chkbStatus} type="checkbox" name="chkbStatus" />
                                     Còn Hàng
                                 </label>
                             </div>
@@ -101,4 +105,21 @@ class ProductActionPage extends Component {
     }
 }
 
-export default ProductActionPage;
+const mapStateToProps = state => {
+    return {
+
+    }
+}
+
+const mapDispatchToProps = (dispatch, props) => {
+    return {
+        onAddProduct: (product) => {
+            dispatch(actAddProductRequest(product));
+        },
+        onUpdateProduct: (product) => {
+            dispatch(actUpdateProductRequest(product));
+        }
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(ProductActionPage);

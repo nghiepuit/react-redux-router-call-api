@@ -1,14 +1,11 @@
 import React, { Component } from 'react';
-import callApi from './../../utils/apiCaller';
 import { Link } from 'react-router-dom';
 
 class ProductItem extends Component {
 
     onDelete = (id) => {
         if (confirm('Bạn chắc chắn muốn xóa ?')) { //eslint-disable-line
-            callApi(`/products/${id}`, 'DELETE', null).then(res => {
-                console.log(res);
-            });
+            this.props.onDeleteProduct(id);
         }
     }
 
