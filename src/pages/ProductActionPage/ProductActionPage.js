@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
-import callApi from './../../utils/apiCaller';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { actAddProductRequest, actUpdateProductRequest } from '../../actions/index';
+import { actAddProductRequest, actUpdateProductRequest, actGetProductRequest } from '../../actions/index';
 
 class ProductActionPage extends Component {
 
@@ -21,18 +20,23 @@ class ProductActionPage extends Component {
         var { match } = this.props;
         if (match) { // update
             var id = match.params.id;
-            callApi(`/products/${id}`, 'GET', null).then(res => {
-                var data = res.data;
-                this.setState({
-                    id: data.id,
-                    txtName: data.name,
-                    txtDescription: data.description,
-                    txtPrice: data.price,
-                    chkbStatus: data.status
-                });
-            });
+            this.props.onEditProduct(id)
         } // else => add
     }
+
+    componentWillReceiveProps(nextProps) {
+        if(nextProps && nextProps.itemEditing){
+            var {itemEditing} = nextProps;
+            this.setState({
+                id : itemEditing.id,
+                txtName : itemEditing.name,
+                txtDescription : itemEditing.description,
+                txtPrice : itemEditing.price,
+                chkbStatus : itemEditing.status
+            })
+        }
+    }
+
 
     onChange = (e) => {
         var target = e.target;
@@ -107,7 +111,7 @@ class ProductActionPage extends Component {
 
 const mapStateToProps = state => {
     return {
-
+        itemEditing : state.itemEditing
     }
 }
 
@@ -118,6 +122,9 @@ const mapDispatchToProps = (dispatch, props) => {
         },
         onUpdateProduct: (product) => {
             dispatch(actUpdateProductRequest(product));
+        },
+        onEditProduct : (id) => {
+            dispatch(actGetProductRequest(id));
         }
     }
 }
